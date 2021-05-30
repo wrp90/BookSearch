@@ -5,7 +5,7 @@ const db = require("../models");
 
 mongoose.connect(
     process.env.MONGODB_URI ||
-    "mongodb://localhost/reactreadinglist"
+    "mongodb://localhost/googlebooks"
 );
 
 const bookSeed = [
@@ -15,6 +15,14 @@ const bookSeed = [
         image: "http://books.google.com/books/content?id=sazytgAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
         link: "http://books.google.com/books?id=sazytgAACAAJ&dq=title:The+Hunger+Games&hl=&source=gbs_api",
         title: "The Hunger Games"
+    },
+    {
+        authors: ["Stephen King"],
+        description: "The ten remaining passengers are Brian Engle, an off-duty airline pilot traveling to Boston to attend his ex-wife's funeral; Dinah Bellman, a young blind girl with minor psychic powers; fifth-grade teacher Laurel Stevenson, who takes to watching over Dinah; Nick Hopewell, a junior attache & mechanic for the British Embassy; Don Gaffney, a retired tool-and-die engineer on a trip to see his grandchild; Rudy Warwick, a businessman; Albert Kaussner, a talented teen violinist heading to a prestigious school of the arts; Bethany Simms, a teenager being sent by her family to rehab; Bob Jenkins, a mystery author who acts as the voice of logic; and Craig Toomey, an irritable investment banker on the verge of a psychotic breakdown. They realize only those sleeping are now left on the plane. Engle takes control and lands the plane in Bangor, Maine for safety reasons, despite Toomey's protests.",
+        image: "https://images-na.ssl-images-amazon.com/images/I/71F58ZBCzYL.jpg",
+        link: "https://www.google.com/search?tbm=bks&hl=en&q=title%3Alangoliers",
+        title: "The Langoliers"
+
     }];
 
 db.Book
