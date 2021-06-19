@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import DeleteBtn from "../components/DeleteBtn";
+import DeleteButton from "../components/DeleteBtn";
 import Jumbotron from "../components/Jumbotron";
 import API from "../utils/API";
 import { Link } from "react-router-dom";
@@ -7,31 +7,11 @@ import { Col, Row, Container } from "../components/Grid";
 import { List, ListItem } from "../components/List";
 import { Input, TextArea, FormBtn } from "../components/Form";
 
-function Books() {
+function SearchBooks() {
     // Setting our component's initial state
     const [books, setBooks] = useState([])
     const [formObject, setFormObject] = useState({})
 
-    // Load all books and store them with setBooks
-    useEffect(() => {
-        loadBooks()
-    }, [])
-
-    // Loads all books and sets them to books
-    function loadBooks() {
-        API.getBooks()
-            .then(res =>
-                setBooks(res.data)
-            )
-            .catch(err => console.log(err));
-    };
-
-    // Deletes a book from the database with a given id, then reloads books from the db
-    function deleteBook(id) {
-        API.deleteBook(id)
-            .then(res => loadBooks())
-            .catch(err => console.log(err));
-    }
 
     // Handles updating component state when the user types into the input field
     function handleInputChange(event) {
@@ -43,68 +23,77 @@ function Books() {
     // Then reload books from the database
     function handleFormSubmit(event) {
         event.preventDefault();
-        if (formObject.title && formObject.author) {
-            API.saveBook({
-                title: formObject.title,
-                author: formObject.author,
-                synopsis: formObject.synopsis
-            })
-                .then(res => loadBooks())
+        if (formObject.title) {
+            API.searchBooks(formObject.title)
+                .then(res => {
+                    setBooks(res.data.items.map(book => (
+                        {
+                            "id": book.id,
+                            "title": book.volumeInfo.title,
+                            "author": book.volumeInfo.authors,
+                            "description": book.volumeInfo.description || "",
+                            "image": book.volumeInfo.imageLinks.thumbnail,
+                            "link": book.volumeInfo.infoLink
+                        }
+                    )))
+                })
                 .catch(err => console.log(err));
         }
     };
 
+    function handleBookSave(event) {
+        event.preventDefault();
+        const bookValues = event.target.attributes
+        API.saveBook({
+            id: bookValues.id.value,
+            title: bookValues.title.value,
+            author: bookValues.author.value,
+            description: bookValues.description.value,
+            image: bookValues.image.value,
+            link: bookValues.link.value
+        })
+            .catch(err => console.log(err));
+    }
+
     return (
         <Container fluid>
             <Row>
-                <Col size="md-6">
+                <Col size="md-12">
                     <Jumbotron>
-                        <h1>What Books Should I Read?</h1>
+                        <h1>Google Books Search</h1>
                     </Jumbotron>
-                    <form>
+                    <form className="row d-flex justify-content-center">
                         <Input
                             onChange={handleInputChange}
                             name="title"
-                            placeholder="Title (required)"
-                        />
-                        <Input
-                            onChange={handleInputChange}
-                            name="author"
-                            placeholder="Author (required)"
-                        />
-                        <TextArea
-                            onChange={handleInputChange}
-                            name="synopsis"
-                            placeholder="Synopsis (Optional)"
+                            placeholder="Search for a Book"
                         />
                         <FormBtn
-                            disabled={!(formObject.author && formObject.title)}
+                            disabled={!(formObject.title)}
                             onClick={handleFormSubmit}
                         >
-                            Submit Book
-              </FormBtn>
+                            Search
+                        </FormBtn>
                     </form>
-                </Col>
-                <Col size="md-6 sm-12">
-                    <Jumbotron>
-                        <h1>Books On My List</h1>
-                    </Jumbotron>
-                    {books.length ? (
-                        <List>
+                    {books.length ?
+                        (<List>
                             {books.map(book => (
-                                <ListItem key={book._id}>
-                                    <Link to={"/books/" + book._id}>
-                                        <strong>
-                                            {book.title} by {book.author}
-                                        </strong>
-                                    </Link>
-                                    <DeleteBtn onClick={() => deleteBook(book._id)} />
-                                </ListItem>
+                                <ListItem
+                                    key={book.id}
+                                    id={book.id}
+                                    author={book.author}
+                                    description={book.description}
+                                    image={book.image}
+                                    link={book.link}
+                                    title={book.title}
+                                    onClick={handleBookSave}
+                                >Save</ListItem>
                             ))}
                         </List>
-                    ) : (
-                        <h3>No Results to Display</h3>
-                    )}
+                        ) : (
+                            <div></div>
+                        )
+                    }
                 </Col>
             </Row>
         </Container>
@@ -112,4 +101,4 @@ function Books() {
 }
 
 
-export default Books;
+export default SearchBooks;
